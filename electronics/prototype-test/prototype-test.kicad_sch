@@ -1,0 +1,20 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "c4178271-ce48-4536-bc07-4aed56e0fa0a")
+	(paper "A4")
+	(title_block
+		(title "Piezo Based Nerf Target Tile")
+		(date "2024-04-06")
+		(rev "1.0")
+		(comment 8 "Piezo Based Nerf Target Tile")
+		(comment 9 "Tim Goll")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)
