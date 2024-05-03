@@ -31,3 +31,6 @@ fp-info-cache
 **/#auto_saved_files/#
 
 *.DS_Store
+
+*.lck
+*#auto_saved_files#
