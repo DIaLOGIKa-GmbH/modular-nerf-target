@@ -1,0 +1,6 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+C1,0805,1,1n,C46653
+Q1,SOT-23,1,S8050,C2146
+R1,0805,1,470,C17710
+R2,0805,1,2k2,C17520
+"RV1, RV2",Potentiometer_Bourns_3296Y_Vertical,2,100k,C780118
