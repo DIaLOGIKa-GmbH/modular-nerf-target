@@ -6,7 +6,7 @@ import { CustomHex, findTileByPhysicalId } from "./targetGrid.tsx";
 import data from '../database/highscores.json'
 
 
-export default function Player() {
+export default function Player({initMode}) {
     const [ammo, setAmmo] = useState(-1);
     const [playerName, setPlayerName] = useState("");
     const [score, setScore] = useState(0);
@@ -16,15 +16,17 @@ export default function Player() {
     const pathToHighscoreDatabase = '../database/highscores.json';
 
     useEffect(() => {
-        if(lastMessage) {
+        if(!initMode && lastMessage) {
             const lastMessageObject = JSON.parse(lastMessage?.data);
-            if(lastMessageObject.action === "hit" && ammo != 0) {
+            if(lastMessageObject.action === "hit" && ammo !== 0) {
               const hex : CustomHex | undefined = findTileByPhysicalId(lastMessageObject.physicalId)
               setScore(score => score + hex?.getPoints());
               setAmmo(ammo => ammo - 1);
+              hex.setText("I'm hit!")
             }
+
         }
-    }, [lastMessage]);
+    }, [initMode, lastMessage]);
 
 
     const PlayerLayout = styled.div`
