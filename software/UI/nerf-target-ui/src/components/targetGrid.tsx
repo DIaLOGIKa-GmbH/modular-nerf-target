@@ -3,6 +3,7 @@ import { SVG } from '@svgdotjs/svg.js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import '../board.css'
 
 const TargetGridLayout = styled.div`
   grid-area: targetGrid;
@@ -236,8 +237,8 @@ export default function TargetGrid({ initMode }) {
   }, [renderTrigger]); 
 
   return (
-    <div>
+    <TargetGridLayout>
       <svg width={viewBoxWidth} height={viewBoxHeight} ref={(ref) => ref?.appendChild(draw.node)} />
-    </div>
+    </TargetGridLayout>
   );
 }

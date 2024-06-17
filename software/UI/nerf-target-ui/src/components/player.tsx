@@ -6,14 +6,16 @@ import { CustomHex, findTileByPhysicalId } from "./targetGrid.tsx";
 import data from '../database/highscores.json'
 
 
-export default function Player({initMode}) {
-    const [ammo, setAmmo] = useState(-1);
-    const [playerName, setPlayerName] = useState("");
+export default function Player({initMode, playerName, ammunition, gameOverHandler}) {
+    const [ammo, setAmmo] = useState(99);
     const [score, setScore] = useState(0);
 
     const socketUrl = 'ws://localhost:8765'; // Local WebSocket server
     const { lastMessage } = useWebSocket(socketUrl);
-    const pathToHighscoreDatabase = '../database/highscores.json';
+
+    useEffect(() => {
+        setAmmo(ammunition);
+      }, [ammunition]);
 
     useEffect(() => {
         if(!initMode && lastMessage) {
@@ -31,7 +33,7 @@ export default function Player({initMode}) {
 
     const PlayerLayout = styled.div`
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: auto auto;
         width: max-content;
         justify-content: center;
         align-items: center;
@@ -55,34 +57,28 @@ export default function Player({initMode}) {
         height: ${scaledHeight}px;
     `;
 
-    const handleNameInput = (event) => {
-        setPlayerName(event.target.value);
-    }
-
-    const handleAmmoInput = (event) => {
-        setAmmo(parseInt(event.target.value));
-    }
-
     function MissHandler() {
         setAmmo(ammo => Math.max(0, ammo - 1));
     }
 
     useEffect(() => { 
-        if (ammo === 0) {
-            
+        if (ammo === 0 && ammunition !== 0) {
+            console.log("calling gameOverHandler", ammo, ammunition)
+            gameOverHandler(score);
         }
     }, [ammo])
 
 
     function Ammunition() {
-        const ammunition = new Array(ammo).fill(null);
+        console.log(ammunition, ammo)
+        const ammunitionArray = new Array(ammo).fill(null);
         return (
             <AmmunitionLayout>
-                {ammunition.map((index) => (
+                {ammunitionArray.map((index) => (
                     <ScaledDart key={index} src={dart} alt={`${index}_dart`} />
                 ))}
             </AmmunitionLayout>
-        );
+            );
     }
 
 
@@ -90,9 +86,9 @@ export default function Player({initMode}) {
     return (
         <>
             <PlayerLayout>
-                {playerName === "" ? <input name="myInput" placeholder="Name" onBlur={handleNameInput}></input> : <div> {playerName} </div>}
-                {ammo === -1 ? <input placeholder="Anzahl Schüsse" onBlur={handleAmmoInput}></input> : <Ammunition />}
+                {Ammunition()}
                 <button type="button" onClick={MissHandler}>Miss!</button>
+                <div>{playerName}</div>
                 <div>{`Score: ${score}`}</div>
             </PlayerLayout>
         </>
