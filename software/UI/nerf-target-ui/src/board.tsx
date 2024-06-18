@@ -24,12 +24,17 @@ export default function Board() {
         setInitMode((prevInitMode) => !prevInitMode);
         }, []);
 
+    const toggleScoreBoardReloadTrigger = useCallback(() => {
+        setScoreBoardReloadTrigger((prev) => !prev);
+    }, []);
+
     
     const [startScreen, setStartScreen] = useState(true);
     const [playerName, setPlayerName] = useState("");
     const [ammunition, setAmmunition] = useState(0);
     const [gameOverScreen, setGameOverScreen] = useState(false);
     const [score, setScore] = useState(0);
+    const [scoreBoardReloadTrigger, setScoreBoardReloadTrigger] = useState(false);
 
     function startScreenCallback (playerName: string, ammunition: number) {
         setStartScreen(false);
@@ -38,8 +43,8 @@ export default function Board() {
     }
 
     function gameOverScreenCallback(updateData) {
-        usePut('http://localhost:3007/highscores', updateData);
         setGameOverScreen(false);
+        toggleScoreBoardReloadTrigger();
         setStartScreen(true);
     }
 
@@ -51,9 +56,6 @@ export default function Board() {
         //Spielstand speichern
     }
 
-    function saveGameHandler(rank: number) {
-        useSave()
-    }
 
     return (
         <>
@@ -82,7 +84,7 @@ export default function Board() {
             <BoardLayout>   
                 <TargetGrid initMode={initMode} />
                 <Player initMode={initMode} playerName={playerName} ammunition={ammunition} gameOverHandler={gameOverHandler}/>
-                <ScoreBoard/>
+                <ScoreBoard reloadTrigger={scoreBoardReloadTrigger}/>
             </BoardLayout>
         
         </>

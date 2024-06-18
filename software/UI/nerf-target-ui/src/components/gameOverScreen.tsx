@@ -1,60 +1,49 @@
 import React, { useEffect, useState } from "react"; 
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { useFetch, usePut } from "./scoreBoard.tsx";
+import { useFetch, usePost } from "./databaseConnector.tsx";
 
 
 
 
 export default function GameOverScreen({playerName, playerScore, gameOverScreenCallback}) {
     
-    const { data: highscores, isPending, error } = useFetch('http://localhost:3007/highscores')
-    const [updateData, setUpdateData] = useState()
+    const {fetchData, data: highscores, loading, error } = useFetch()
+    const [updateData, setUpdateData] = useState(null)
+    const [rank, setRank] = useState()
+    const { postData, loading: putLoading, error: putError } = usePost();
+
+    useEffect(() => {
+        fetchData('http://localhost:3007/highscores')
+    }, [])
 
     useEffect(() => {
         if(highscores) {
-            setUpdateData(highscores.push({id: 99, name: playerName, score: playerScore, date: ""}))
+            setRank(highscores.filter(score => score.score >= playerScore).length + 1  )
         }
-    }, [highscores])
-    
+    }, [highscores, playerName, playerScore])
+
+    const handleClose = () => {
+        const id = 99;
+        const newHighscore = {id: id, name: playerName, score: playerScore, date: ""};
+        postData(`http://localhost:3007/highscores`, newHighscore)
+        gameOverScreenCallback();
+    }
+
     return (
         <>
         <div>GAME OVER</div>
         <div>{`Tolle Leistung ${playerName}!`}</div>
         {error && <p>{error}</p>}
-        {isPending && <p>Berechne Rang...</p>}
+        {loading && <p>Berechne Rang...</p>}
         {highscores && 
         <>
-            <div> {`Du hast mit ${playerScore} Punkten den ${highscores.filter(score => score.score > playerScore).length + 1  }. Platz erreicht`}</div>
-            <Button onClick={gameOverScreenCallback(updateData)} variant="primary" type="submit">
+            <div> {`Du hast mit ${playerScore} Punkten den ${rank}. Platz erreicht`}</div>
+            <Button onClick={handleClose} variant="primary" type="submit">
                 Schließen
             </Button>
         </>
         }
     </>
-    );
-/*
-return (
-        <>
-            <label>
-                Name:
-                <input
-                    value={playerName}
-                    onChange={e => setPlayerName(e.target.value)}
-                />
-            </label>
-            <label>
-                Schüsse:
-                <input
-                    value={ammo}
-                    onChange={e => setAmmo(e.target.value)}
-                    type="number"
-                />
-            </label>
-            <button onClick={() => startScreenCallback(playerName, ammoAsNumber)}>
-                Spiel starten
-            </button>
-        </>
-    );
-    */   
+    );   
 }
