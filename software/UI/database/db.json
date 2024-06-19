@@ -78,5 +78,16 @@
       "score": 0,
       "date": ""
     }
+  ],
+  "idMapping": [
+    {"physicalId": 99,
+     "virtualId": 0
+    },    {"physicalId": 99,
+    "virtualId": 1
+   },    {"physicalId": 99,
+   "virtualId": 2
+  },    {"physicalId": 99,
+  "virtualId": 3
+ }
   ]
 }

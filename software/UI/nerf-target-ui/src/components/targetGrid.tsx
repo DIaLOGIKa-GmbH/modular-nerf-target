@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import '../board.css'
+import { useFetch, usePost } from './databaseConnector.tsx';
 
 const TargetGridLayout = styled.div`
   grid-area: targetGrid;
@@ -75,7 +76,7 @@ function registerTile(newTile: CustomHex) {
   }
 }
 
-export function findTileByPhysicalId(physicalId: number) {
+export function findTileByPhysicalId(physicalId: number) : CustomHex | null {
   let matchingTile: CustomHex | null = null;
   tiles.forEach((tile) => {
     if (tile.getPhysicalId() === physicalId) {
@@ -88,7 +89,7 @@ export function findTileByPhysicalId(physicalId: number) {
   return matchingTile;
 }
 
-export function findTileByVirtualId(physicalId: number) {
+export function findTileByVirtualId(physicalId: number) : CustomHex | null {
   let hex: CustomHex | null = null;
   tiles.forEach((tile) => {
     if (tile.getVirtualId() === physicalId) {
@@ -104,11 +105,20 @@ export function findTileByVirtualId(physicalId: number) {
 
 export default function TargetGrid({ initMode }) {
 
+  const { postData, loading: putLoading, error: putError } = usePost();
+  const { fetchData, data: idMapping, loading: fetchLoading, error: fetchError } = useFetch();
+
+
   const initModeRef = useRef(initMode)
   const [renderTrigger, setRenderTrigger] = useState(false);
   const toggleRenderTrigger = useCallback(() => {
       setRenderTrigger((prevRenderTrigger) => !prevRenderTrigger);
     }, []);
+
+    const [updateColorTrigger, setUpdateColorTrigger] = useState(false);
+    const toggleUpdateColorTrigger = useCallback(() => {
+      setUpdateColorTrigger((prev) => !prev);
+      }, []);
 
 
   const socketUrl = 'ws://localhost:8765'; // Local WebSocket server
@@ -136,10 +146,12 @@ export default function TargetGrid({ initMode }) {
         { allowOutside: false }
       );
       
-      if (initModeRef.current && lastMessage) {
+      if (initModeRef.current && lastMessage && hex) {
         const lastMessageObject = JSON.parse(lastMessage?.data);
-        hex?.setPhysicalId(lastMessageObject.physicalId);
-        hex?.setColor(new RGB(0,255,0));
+        hex.setPhysicalId(lastMessageObject.physicalId);
+        postData('http://localhost:3007/idMapping', {virtualId: hex.virtualId, physicalId: hex.physicalId})
+        updateColor();
+        toggleRenderTrigger();
       }
 
       /*if (readyState === ReadyState.OPEN && initEnabled) {
@@ -150,15 +162,29 @@ export default function TargetGrid({ initMode }) {
     }
 
 
-  useEffect(() => {
+  function updateColor() {
     tiles.forEach((tile) => {
       if(initMode) {
-        !tile.getPhysicalId ? tile.setColor(new RGB(181,229,80)) : tile.setColor(new RGB(255,165,0))
+        console.log("change color", tile.getPhysicalId())
+        tile.getPhysicalId() ? tile.setColor(new RGB(181,229,80)) : tile.setColor(new RGB(255,165,0))
       } else {
         tile.setColor(scoreToColorMapping.get(tile.getScore()));
       }
     })
-      
+  }
+  useEffect(() => {
+    // load physical id from database
+    console.log("idMapping", idMapping);
+    idMapping?.forEach((mapEntry) => {
+      findTileByVirtualId(mapEntry.virtualId)?.setPhysicalId(mapEntry.physicalId)
+  })
+    updateColor();
+    toggleRenderTrigger();
+  }, [idMapping])
+
+
+  useEffect(() => {
+    updateColor();    
     //update the ref for the clickHandler
     initModeRef.current = initMode;
     //trigger render udpate
@@ -166,10 +192,18 @@ export default function TargetGrid({ initMode }) {
   }, [initMode])
 
   useEffect(() => {
+    fetchData('http://localhost:3007/idMapping')
+  }, [])
+
+  useEffect(() => {
     document.addEventListener('click', handleClick);
+
     // assign virtual id
+    // grid overwrites the forEach implementation. Index is not available
+    let hexIndex = 0;
     grid.forEach((hex) => {
-      hex.setVirtualId(Math.ceil(Math.random() * 99999));
+      hex.setVirtualId(hexIndex);
+      hexIndex++;
     }); 
     
     //register tiles
