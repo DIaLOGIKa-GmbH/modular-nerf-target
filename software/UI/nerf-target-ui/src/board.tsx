@@ -15,6 +15,7 @@ const BoardLayout = styled.div`
     height:fit-content;
     width: fit-content;
     column-gap: 10rem;
+    row-gap: 5rem;
 `
 
   
@@ -28,6 +29,12 @@ export default function Board() {
         setScoreBoardReloadTrigger((prev) => !prev);
     }, []);
 
+
+    const [newGameTrigger, setNewGameTrigger] = useState(false);
+    const toggleNewGameTrigger = useCallback(() => {
+        setNewGameTrigger((prev) => !prev);
+        }, []);
+
     
     const [startScreen, setStartScreen] = useState(true);
     const [playerName, setPlayerName] = useState("");
@@ -38,8 +45,10 @@ export default function Board() {
 
     function startScreenCallback (playerName: string, ammunition: number) {
         setStartScreen(false);
+        console.log("info in startscreecallback", playerName, ammunition)
         setPlayerName(playerName);
         setAmmunition(ammunition);
+        toggleNewGameTrigger();
     }
 
     function gameOverScreenCallback(updateData) {
@@ -61,7 +70,7 @@ export default function Board() {
         <>
             <Modal show={startScreen} backdrop="static">
                 <Modal.Header closeButton>
-                    <Modal.Title>Nerf-Gun Spiel</Modal.Title>
+                    <Modal.Title>Neue Runde</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <StartScreen startScreenCallback = {startScreenCallback}/>
@@ -70,7 +79,7 @@ export default function Board() {
 
             <Modal show={gameOverScreen} backdrop="static">
                 <Modal.Header closeButton>
-                    <Modal.Title>Nerf-Gun Spiel</Modal.Title>
+                    <Modal.Title>GAME OVER</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <GameOverScreen gameOverScreenCallback = {gameOverScreenCallback} playerName={playerName} playerScore={score}/>
@@ -83,7 +92,7 @@ export default function Board() {
                     </div>
             <BoardLayout>   
                 <TargetGrid initMode={initMode} />
-                <Player initMode={initMode} playerName={playerName} ammunition={ammunition} gameOverHandler={gameOverHandler}/>
+                <Player initMode={initMode} playerName={playerName} ammunition={ammunition} gameOverHandler={gameOverHandler} newGameTrigger={newGameTrigger}/>
                 <ScoreBoard reloadTrigger={scoreBoardReloadTrigger}/>
             </BoardLayout>
         

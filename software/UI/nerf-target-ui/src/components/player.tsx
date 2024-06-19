@@ -1,12 +1,17 @@
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import styled from "styled-components";
 import dart from '../resources/dart.png';
+import user from '../resources/user.svg';
+import coin from '../resources/coin.svg';
+import bullseye from '../resources/bullseye.svg';
+
 import useWebSocket from "react-use-websocket";
 import { CustomHex, findTileByPhysicalId } from "./targetGrid.tsx";
 import data from '../database/highscores.json'
+import Button from 'react-bootstrap/Button';
 
 
-export default function Player({initMode, playerName, ammunition, gameOverHandler}) {
+export default function Player({initMode, playerName, ammunition, gameOverHandler, newGameTrigger}) {
     const [ammo, setAmmo] = useState(99);
     const [score, setScore] = useState(0);
 
@@ -15,7 +20,7 @@ export default function Player({initMode, playerName, ammunition, gameOverHandle
 
     useEffect(() => {
         setAmmo(ammunition);
-      }, [ammunition]);
+      }, [ammunition, newGameTrigger]);
 
     useEffect(() => {
         if(!initMode && lastMessage) {
@@ -38,23 +43,33 @@ export default function Player({initMode, playerName, ammunition, gameOverHandle
         justify-content: center;
         align-items: center;
         column-gap: 40px;
+        row-gap: 1rem;
         font-size: x-large;
         height: fit-content;
     `
     // Define the dimensions of the scaled darts
-    const scaledWidth = 5;
-    const scaledHeight = 25;
+    const scaledWidthDart = 10;
+    const scaledHeightDart = 50;
+
+    // Define the dimensions of the scaled icons
+    const scaledWidthIcon = 40;
+    const scaledHeightIcon = 40;
 
     const AmmunitionLayout = styled.div`
         display: grid;
-        grid-template-columns: repeat(${ammo}, minmax(${scaledWidth}px, 1fr));
+        grid-template-columns: repeat(${ammo}, minmax(${scaledWidthDart}px, 1fr));
         grid-gap: 10px;
         width: fit-content;
         `;
 
     const ScaledDart = styled.img`
-        width: ${scaledWidth}px;
-        height: ${scaledHeight}px;
+        width: ${scaledWidthDart}px;
+        height: ${scaledHeightDart}px;
+    `;
+
+    const ScaledIcon = styled.img`
+        width: ${scaledWidthIcon}px;
+        height: ${scaledHeightIcon}px;
     `;
 
     function MissHandler() {
@@ -86,10 +101,12 @@ export default function Player({initMode, playerName, ammunition, gameOverHandle
     return (
         <>
             <PlayerLayout>
-                {Ammunition()}
-                <button type="button" onClick={MissHandler}>Miss!</button>
-                <div>{playerName}</div>
-                <div>{`Score: ${score}`}</div>
+                <ScaledIcon src={bullseye}/> <div> {Ammunition()}</div>
+                
+                <ScaledIcon src={user} key={"playerNameIcon"}/> <div> {playerName}</div>
+                <ScaledIcon src={coin} key={"scoreIcon"}/> <div> {score}</div>
+
+                <Button variant="dark" type="button" onClick={MissHandler}>Miss!</Button>
             </PlayerLayout>
         </>
     )

@@ -16,14 +16,14 @@ export default function StartScreen({startScreenCallback}) {
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="playerName">
             <Form.Label>Name</Form.Label>
-            <Form.Control type="string" placeholder="Name" value={playerName} onChange={(e) => setPlayerName(e.target.value)}/>
+            <Form.Control required type="string" placeholder="Name" value={playerName} onChange={(e) => setPlayerName(e.target.value)}/>
           </Form.Group>
     
           <Form.Group className="mb-3" controlId="ammunition">
             <Form.Label>Anzahl Schüsse</Form.Label>
-            <Form.Control type="number" placeholder="0" value={ammo} onChange={(e) => setAmmo(Number(e.target.value))}/>
+            <Form.Control required type="number" placeholder="0" value={ammo} onChange={(e) => setAmmo(Number(e.target.value))}/>
           </Form.Group>
-          <Button variant="primary" type="submit">
+          <Button variant="dark" type="submit">
             Spiel starten
           </Button>
         </Form>

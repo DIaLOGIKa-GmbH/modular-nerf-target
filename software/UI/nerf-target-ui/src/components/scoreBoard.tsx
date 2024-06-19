@@ -19,6 +19,7 @@ interface Highscores{
 const ScoreBoardLayout = styled.div`
   grid-area: scoreBoard;
   width: max-content;
+  min-width: 20rem;
   height: fit-content;
   display: grid;
 `
@@ -27,6 +28,36 @@ grid-template-areas:
 'name score';
 grid-template-columns: 80% 20%;
 display: grid;
+`
+
+const FirstPlace = styled.div`
+  display:grid;
+  grid-area: name;
+  margin: unset;
+  padding: unset;
+  color: green;
+  font-size: 1.5rem;
+  font-weight: bold;
+`
+
+const SecondPlace = styled.div`
+  display:grid;
+  grid-area: name;
+  margin: unset;
+  padding: unset;
+  color: green;
+  font-size: 1.3rem;
+  font-weight: bold;
+`
+
+const ThirdPlace = styled.div`
+  display:grid;
+  grid-area: name;
+  margin: unset;
+  padding: unset;
+  color: green;
+  font-size: 1.1rem;
+  font-weight: bold;
 `
 
 const NameEntry = styled.div`
@@ -41,29 +72,63 @@ const ScoreEntry = styled.div`
   grid-area: score;
   margin: unset;
   padding: unset;
+  justify-content: center;
+  align-content: center;
 `
 
 
 export default function ScoreBoard({reloadTrigger}) {
   const {fetchData, data: highscores, loading, error } = useFetch()
-  
+  const maxNumberItems = 10;
+
   useEffect(() => {
     fetchData('http://localhost:3007/highscores')
   }, [reloadTrigger])
   
   return (
       <ScoreBoardLayout>
-      <h1>Scoreboard</h1>
+      <h2>Scoreboard</h2>
         {error && <p>{error}</p>}
         {loading && <p>Loading Scoreboard...</p>}
-        {highscores && highscores.sort((a,b,) => b.score - a.score).map((data, i) => (
+        {highscores && highscores.sort((a, b) =>
+          {
+            // First compare the scores
+            //if (b.score !== a.score) {
+              return b.score - a.score;
+            //}
+            // If scores are equal, compare the dates
+            //const aDate = new Date(a.date);
+            //const bDate = new Date(b.date);
+            //if(aDate && bDate) {
+            //  return bDate - aDate;
+            //}
+          }).map((data, i) => (
             <ScoreBoardEntry>
-              <NameEntry >
-                {data.name}
-              </NameEntry>
-              <ScoreEntry>
-                {data.score}
-              </ScoreEntry>
+              {i === 0 &&
+                <FirstPlace >
+                  {`${i+1}. ${data.name}`}
+                </FirstPlace>
+              }
+              {i === 1 &&
+                <SecondPlace >
+                  {`${i+1}. ${data.name}`}
+                </SecondPlace>
+              }
+              {i === 2 &&
+                <ThirdPlace >
+                  {`${i+1}. ${data.name}`}
+                </ThirdPlace>
+              }
+              {i > 2 && i < maxNumberItems &&
+                <NameEntry >
+                  {`${i+1}. ${data.name}`}
+                </NameEntry>
+              } 
+              { i < maxNumberItems &&
+                <ScoreEntry>
+                  {data.score}
+                </ScoreEntry>
+              }
             </ScoreBoardEntry>
             ))
         }

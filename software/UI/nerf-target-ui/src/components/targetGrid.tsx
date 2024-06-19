@@ -8,6 +8,7 @@ import { useFetch, usePost } from './databaseConnector.tsx';
 
 const TargetGridLayout = styled.div`
   grid-area: targetGrid;
+  align-content: center;
 `;
 
 class RGB {
@@ -243,13 +244,13 @@ export default function TargetGrid({ initMode }) {
       
       let infoText : string;
       if(initMode) {
-        infoText = "Score: " + hex.getScore().toString() + "\n PhysicalId: " + hex.getPhysicalId()?.toString() + "\n VirtualId: " + hex.getVirtualId().toString()
+        infoText = hex.getScore().toString() + "\n PhysicalId: " + hex.getPhysicalId()?.toString() + "\n VirtualId: " + hex.getVirtualId().toString()
         text = draw.text(infoText)
           .font({ size: 12, anchor: 'middle', fill: '#000' }) // Adjust font size and color as needed
           .cx(centerX)
           .cy(centerY)
       } else {
-        infoText = "Score: " + hex.getScore().toString(); 
+        infoText =hex.getScore().toString(); 
         text = draw.text(infoText)
           .font({ size: 18, weight: 'bold', anchor: 'middle', fill: '#000' }) // Adjust font size and color as needed
           .cx(centerX)
