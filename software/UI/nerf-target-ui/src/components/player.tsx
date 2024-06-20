@@ -5,36 +5,39 @@ import user from '../resources/user.svg';
 import coin from '../resources/coin.svg';
 import bullseye from '../resources/bullseye.svg';
 
-import useWebSocket from "react-use-websocket";
 import { CustomHex, findTileByPhysicalId } from "./targetGrid.tsx";
-import data from '../database/highscores.json'
 import Button from 'react-bootstrap/Button';
+import myEmitter from './eventEmitter.ts'; 
 
 
 export default function Player({initMode, playerName, ammunition, gameOverHandler, newGameTrigger}) {
     const [ammo, setAmmo] = useState(99);
     const [score, setScore] = useState(0);
 
-    const socketUrl = 'ws://localhost:8765'; // Local WebSocket server
-    const { lastMessage } = useWebSocket(socketUrl);
-
     useEffect(() => {
         setAmmo(ammunition);
+        setScore(0);
       }, [ammunition, newGameTrigger]);
 
-    useEffect(() => {
-        if(!initMode && lastMessage) {
-            const lastMessageObject = JSON.parse(lastMessage?.data);
-            if(lastMessageObject.action === "hit" && ammo !== 0) {
-              const hex : CustomHex | undefined = findTileByPhysicalId(lastMessageObject.physicalId)
-              setScore(score => score + hex?.getPoints());
+
+      useEffect(() => {
+        const handleTileHit = (physicalId) => {
+          if (ammo !== 0) {
+            const hex = findTileByPhysicalId(physicalId);
+            console.log(hex);
+            if (hex) {
+              setScore(score => score + hex.getScore());
               setAmmo(ammo => ammo - 1);
-              hex.setText("I'm hit!")
             }
-
-        }
-    }, [initMode, lastMessage]);
-
+          }
+        };
+    
+        myEmitter.on('tileHit', handleTileHit);
+    
+        return () => {
+          myEmitter.off('tileHit', handleTileHit);
+        };
+      }, [ammo]);
 
     const PlayerLayout = styled.div`
         display: grid;

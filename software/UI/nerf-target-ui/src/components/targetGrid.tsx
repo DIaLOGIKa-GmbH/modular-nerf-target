@@ -2,7 +2,6 @@ import { defineHex, Grid, spiral, Orientation } from 'honeycomb-grid';
 import { SVG } from '@svgdotjs/svg.js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import '../board.css'
 import { useFetch, usePost } from './databaseConnector.tsx';
 
@@ -122,16 +121,6 @@ export default function TargetGrid({ initMode }) {
       }, []);
 
 
-  const socketUrl = 'ws://localhost:8765'; // Local WebSocket server
-  const { sendJsonMessage, lastMessage, readyState } = useWebSocket(socketUrl);
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
-
   const scoreToColorMapping = new Map();
   scoreToColorMapping.set(100, new RGB(255,204,203));
   scoreToColorMapping.set(200, new RGB(144,238,144));
@@ -147,18 +136,12 @@ export default function TargetGrid({ initMode }) {
         { allowOutside: false }
       );
       
-      if (initModeRef.current && lastMessage && hex) {
+      /*if (initModeRef.current && lastMessage && hex) {
         const lastMessageObject = JSON.parse(lastMessage?.data);
         hex.setPhysicalId(lastMessageObject.physicalId);
         postData('http://localhost:3007/idMapping', {virtualId: hex.virtualId, physicalId: hex.physicalId})
         updateColor();
         toggleRenderTrigger();
-      }
-
-      /*if (readyState === ReadyState.OPEN && initEnabled) {
-        sendJsonMessage({ action: 'init', virtualId: hex?.getVirtualId() });
-      } else {
-        console.log('No init message sent.', ReadyState.OPEN, readyState, initEnabled);
       }*/
     }
 
@@ -166,7 +149,6 @@ export default function TargetGrid({ initMode }) {
   function updateColor() {
     tiles.forEach((tile) => {
       if(initMode) {
-        console.log("change color", tile.getPhysicalId())
         tile.getPhysicalId() ? tile.setColor(new RGB(181,229,80)) : tile.setColor(new RGB(255,165,0))
       } else {
         tile.setColor(scoreToColorMapping.get(tile.getScore()));
@@ -175,7 +157,6 @@ export default function TargetGrid({ initMode }) {
   }
   useEffect(() => {
     // load physical id from database
-    console.log("idMapping", idMapping);
     idMapping?.forEach((mapEntry) => {
       findTileByVirtualId(mapEntry.virtualId)?.setPhysicalId(mapEntry.physicalId)
   })
