@@ -5,7 +5,7 @@ import user from '../resources/user.svg';
 import coin from '../resources/coin.svg';
 import bullseye from '../resources/bullseye.svg';
 
-import { CustomHex, findTileByPhysicalId } from "./targetGrid.tsx";
+import { CustomHex, findTileByPhysicalId, findTileByVirtualId } from "./targetGrid.tsx";
 import Button from 'react-bootstrap/Button';
 import myEmitter from './eventEmitter.ts'; 
 
@@ -17,27 +17,46 @@ export default function Player({initMode, playerName, ammunition, gameOverHandle
     useEffect(() => {
         setAmmo(ammunition);
         setScore(0);
-      }, [ammunition, newGameTrigger]);
+    }, [ammunition, newGameTrigger]);
 
 
-      useEffect(() => {
+    useEffect(() => {
         const handleTileHit = (physicalId) => {
-          if (ammo !== 0) {
-            const hex = findTileByPhysicalId(physicalId);
-            console.log(hex);
-            if (hex) {
-              setScore(score => score + hex.getScore());
-              setAmmo(ammo => ammo - 1);
+            if (ammo !== 0) {
+                const hex = findTileByPhysicalId(physicalId);
+                console.log(hex);
+                if (hex) {
+                    setScore(score => score + hex.getScore());
+                    setAmmo(ammo => ammo - 1);
+                }
             }
-          }
         };
-    
+
         myEmitter.on('tileHit', handleTileHit);
-    
+
         return () => {
-          myEmitter.off('tileHit', handleTileHit);
+            myEmitter.off('tileHit', handleTileHit);
         };
-      }, [ammo]);
+    }, [ammo]);
+
+    useEffect(() => {
+        const handleTileHit = (virtualId) => {
+            if (ammo !== 0) {
+                const hex = findTileByVirtualId(virtualId);
+                console.log(hex);
+                if (hex) {
+                    setScore(score => score + hex.getScore());
+                    setAmmo(ammo => ammo - 1);
+                }
+            }
+        };
+
+        myEmitter.on('tileHitOnClick', handleTileHit);
+
+        return () => {
+            myEmitter.off('tileHitOnClick', handleTileHit);
+        };
+    }, [ammo]);
 
     const PlayerLayout = styled.div`
         display: grid;

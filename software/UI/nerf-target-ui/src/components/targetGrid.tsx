@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import '../board.css'
 import { useFetch, usePost } from './databaseConnector.tsx';
+import myEmitter from './eventEmitter.ts';
 
 const TargetGridLayout = styled.div`
   grid-area: targetGrid;
@@ -136,6 +137,9 @@ export default function TargetGrid({ initMode }) {
         { allowOutside: false }
       );
       
+      if (!initModeRef.current && hex) {
+        myEmitter.emit('tileHitOnClick', hex.getVirtualId());
+      }
       /*if (initModeRef.current && lastMessage && hex) {
         const lastMessageObject = JSON.parse(lastMessage?.data);
         hex.setPhysicalId(lastMessageObject.physicalId);
